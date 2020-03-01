@@ -1,0 +1,12 @@
+# intellij idea
+*.iml
+.idea/
+
+# maven
+target/
+
+# jrebel
+rebel.xml
+.classpath
+.project
+.settings/
