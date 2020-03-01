@@ -1,4 +1,4 @@
-package io.lite.framework.type;
+package io.lite.framework.helper;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 

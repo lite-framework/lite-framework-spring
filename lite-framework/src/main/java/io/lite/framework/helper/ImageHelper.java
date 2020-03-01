@@ -1,7 +1,6 @@
-package io.lite.framework.utils;
+package io.lite.framework.helper;
 
 
-import io.lite.framework.type.IDHelper;
 import org.apache.commons.lang3.StringUtils;
 
 

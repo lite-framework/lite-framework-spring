@@ -1,4 +1,4 @@
-package io.lite.framework.utils;
+package io.lite.framework.helper;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

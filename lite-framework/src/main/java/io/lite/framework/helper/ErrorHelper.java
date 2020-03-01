@@ -1,4 +1,4 @@
-package io.lite.framework.utils;
+package io.lite.framework.helper;
 
 import io.lite.framework.common.BizError;
 import io.lite.framework.common.ResponseCode;

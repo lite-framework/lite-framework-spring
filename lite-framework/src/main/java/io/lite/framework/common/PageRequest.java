@@ -6,8 +6,6 @@ import lombok.experimental.Accessors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-/**
- */
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)

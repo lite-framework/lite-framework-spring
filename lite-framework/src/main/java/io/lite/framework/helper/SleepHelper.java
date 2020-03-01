@@ -1,4 +1,4 @@
-package io.lite.framework.utils;
+package io.lite.framework.helper;
 
 import org.apache.commons.lang3.RandomUtils;
 

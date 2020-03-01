@@ -5,9 +5,6 @@ import io.lite.framework.type.Callback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author chen.ce
- */
 
 public class TransactionHelper {
 
