@@ -13,7 +13,7 @@
         <groupId>io.lite</groupId>
         <artifactId>lite-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath>../lite-parent</relativePath>
     </parent>
 
     <properties>
