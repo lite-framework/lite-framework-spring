@@ -102,7 +102,7 @@ public abstract class Base implements DebugControl {
 
             if (causeBy instanceof io.lettuce.core.RedisException) {
                 response.setCode(ResponseCode.REDIS_ERROR.getCode());
-            } else if (causeBy instanceof org.hibernate.HibernateException) {
+            } else if (causeBy instanceof org.hibernate.HibernateException || causeBy instanceof org.springframework.dao.DataIntegrityViolationException) {
 
                 if (StringUtils.contains(message, Def.IDEM_MARK)) {
                     response.setCode(ResponseCode.DUP_REQUEST.getCode());
