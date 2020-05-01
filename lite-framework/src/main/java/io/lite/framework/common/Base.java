@@ -4,22 +4,23 @@ import brave.Span;
 import brave.Tracer;
 import brave.propagation.TraceContext;
 import io.lite.framework.Def;
+import io.lite.framework.component.Blizzard;
 import io.lite.framework.component.TransactionHelper;
+import io.lite.framework.helper.*;
 import io.lite.framework.type.Callback;
 import io.lite.framework.type.DebugControl;
 import io.lite.framework.type.IResponseCode;
-import io.lite.framework.helper.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.springframework.amqp.rabbit.core.RabbitMessageOperations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisOperations;
 
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 public abstract class Base implements DebugControl {
@@ -30,6 +31,9 @@ public abstract class Base implements DebugControl {
 
     @Value("${logging.debug.on:false}")
     protected Boolean debug;
+
+    @Value(("${workerId:1}"))
+    protected Integer workerId;
 
     public void setDebug(Boolean debug) {
         this.debug = debug;
@@ -45,15 +49,6 @@ public abstract class Base implements DebugControl {
     // should be an interface
     @Autowired
     protected Tracer tracer;
-
-    // ------------------------------- message ---------------------------
-    @Autowired
-    protected RabbitMessageOperations rabbitMessageOperations;
-
-    protected void sendMessage(String dest, Object payload) {
-        rabbitMessageOperations.convertAndSend(dest, payload);
-    }
-
 
     // ------------------------------- logger ---------------------------
     protected abstract org.slf4j.Logger getLogger();
@@ -119,8 +114,6 @@ public abstract class Base implements DebugControl {
         if (autoLogResponse())
             info(response.toString());
 
-        counterIncrement(appName, "responseCode", response.getCode());
-
         // todo 添加对外方法级别的elapse 到influx
 
 //        response.setTraceId(MDC.get("X-B3-TraceId"));
@@ -141,15 +134,6 @@ public abstract class Base implements DebugControl {
 
     protected void newTrace() {
         tracer.newTrace();
-    }
-
-    // ------------------------------- metric ---------------------------
-    protected void counterIncrement(String name, String... tags) {
-        if (autoTraceResponse())
-            noErrors(() -> {
-                meterRegistry.counter(name, tags).increment();
-                return null;
-            });
     }
 
     // ------------------------------- error ---------------------------
@@ -217,29 +201,7 @@ public abstract class Base implements DebugControl {
     }
 
 
-    // ------------------------------- redis ---------------------------
-    @Autowired
-    @Qualifier(Def.CUST_REDIS_OPS_BEAN_NAME)
-    protected RedisOperations redisOperations;
-
-
     private static final Long SUCCESS = 1L;
-
-    /**
-     * 获取锁
-     *
-     * @param lockKey
-     * @param expireTime：单位-秒
-     * @return
-     */
-    protected boolean getLock(String lockKey, int expireTime) {
-        return RedisHelper.getLock(redisOperations, lockKey, expireTime);
-    }
-
-
-    protected boolean withDistributedLock(String lockKey, Callback callback, int expireTime) {
-        return RedisHelper.withDistributedLock(redisOperations, lockKey, callback, expireTime);
-    }
 
     protected Boolean withDistributedConcurrency(RedisOperations redisOperations, String key, Callback callback, int concurrency) {
         return RedisHelper.withDistributedConcurrency(redisOperations, key, callback, concurrency);
@@ -255,8 +217,14 @@ public abstract class Base implements DebugControl {
         return nextId(appName);
     }
 
+
+    private Blizzard blizzard;
+
     protected long nextId(String type) {
-        return RedisHelper.nextId(redisOperations, type);
+        if (blizzard == null) {
+            blizzard = Blizzard.create(workerId);
+        }
+        return blizzard.nextId();
     }
 
     // ------------------------------- sugars ---------------------------
