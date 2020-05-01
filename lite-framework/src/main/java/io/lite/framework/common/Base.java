@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisOperations;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -96,14 +95,10 @@ public abstract class Base implements DebugControl {
             Throwable causeBy = t.getCause();
             if (StringUtils.contains(message, Def.IDEM_MARK)) {
                 response.setCode(ResponseCode.DUP_REQUEST.getCode());
-            } else if (causeBy instanceof io.lettuce.core.RedisException) {
-                response.setCode(ResponseCode.REDIS_ERROR.getCode());
             } else if (causeBy instanceof org.hibernate.HibernateException || causeBy instanceof org.springframework.dao.DataIntegrityViolationException
                     || causeBy instanceof java.sql.SQLException
             ) {
                 response.setCode(ResponseCode.JPA_ERROR.getCode());
-            } else if (causeBy instanceof org.springframework.amqp.AmqpException) {
-                response.setCode(ResponseCode.RABBIT_MQ_ERROR.getCode());
             } else {
                 response.setCode(ResponseCode.SYSTEM_ERROR.getCode());
             }
@@ -203,13 +198,6 @@ public abstract class Base implements DebugControl {
 
     private static final Long SUCCESS = 1L;
 
-    protected Boolean withDistributedConcurrency(RedisOperations redisOperations, String key, Callback callback, int concurrency) {
-        return RedisHelper.withDistributedConcurrency(redisOperations, key, callback, concurrency);
-    }
-
-    protected Boolean withDistributedConcurrency(RedisOperations redisOperations, String key, Callback callback, int concurrency, int expireTimeSecond) {
-        return RedisHelper.withDistributedConcurrency(redisOperations, key, callback, concurrency, expireTimeSecond);
-    }
 
     // ------------------------------- id ---------------------------
 
