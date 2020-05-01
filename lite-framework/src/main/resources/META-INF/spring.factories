@@ -1,6 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
     io.lite.framework.config.TransactionConfig,\
-    io.lite.framework.config.RedisConfig,\
     io.lite.framework.config.JpaAopConfig
 
 org.springframework.boot.SpringApplicationRunListener=\
